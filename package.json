@@ -1,0 +1,36 @@
+{
+  "name": "to-do-list",
+  "displayName": "To-Do List",
+  "description": "A simple to-do list extention to manage your tasks.",
+  "version": "0.0.1",
+  "publisher": "Shob",
+  "engines": { 
+    "vscode": "^1.89.0"
+  },
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./extension.js",
+  "contributes": {
+    "commands": [{
+      "command": "to-do-list.helloWorld",
+      "title": "Hello World"
+    }]
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.89.0",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "18.x",
+    "eslint": "^8.57.0",
+    "typescript": "^5.4.5",
+    "@vscode/test-cli": "^0.0.9",
+    "@vscode/test-electron": "^2.4.0"
+  }
+}
