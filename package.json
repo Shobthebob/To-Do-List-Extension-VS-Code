@@ -1,10 +1,10 @@
 {
   "name": "to-do-list",
   "displayName": "To-Do List",
-  "description": "A simple to-do list extention to manage your tasks.",
+  "description": "A simple to-do list extension to manage your tasks.",
   "version": "0.0.1",
   "publisher": "Shob",
-  "engines": { 
+  "engines": {
     "vscode": "^1.89.0"
   },
   "categories": [
@@ -14,10 +14,30 @@
   "activationEvents": [],
   "main": "./extension.js",
   "contributes": {
-    "commands": [{
-      "command": "to-do-list.helloWorld",
-      "title": "Hello World"
-    }]
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "to-do",
+          "title": "To-Do List",
+          "icon": "./assets/icon.png"
+        }
+      ]
+    },
+    "views": {
+      "to-do": [
+        {
+          "type": "webview",
+          "id": "toDo",
+          "name": "To-Do List"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "extension.sayHello",
+        "title": "Hello World"
+      }
+    ]
   },
   "scripts": {
     "lint": "eslint .",
