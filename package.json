@@ -12,7 +12,7 @@
     "Other"
   ],
   "activationEvents": [],
-  "main": "./extension.js",
+  "main": "./src/extension.js",
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -34,8 +34,8 @@
     },
     "commands": [
       {
-        "command": "extension.sayHello",
-        "title": "Hello World"
+        "command": "toDo.yo",
+        "title": "Yo"
       }
     ]
   },

@@ -1,0 +1,100 @@
+:root {
+  --font-family: var(--vscode-font-family);
+  --font-size: var(--vscode-font-size);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--font-family);
+  font-size: 14px;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  background-color: var(--vscode-editor-background);
+  color: var(--vscode-editor-foreground);
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background-color: var(--vscode-sideBar-background);
+  padding: 20px;
+  min-width: 300px;
+  /* Set your desired minimum width here */
+}
+
+.todo-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.todo-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: var(--vscode-list-hoverBackground);
+  margin-bottom: 10px;
+  border-radius: 5px;
+  color: var(--vscode-editor-foreground);
+}
+
+.todo-list li.done {
+  text-decoration: line-through;
+  color: var(--vscode-disabledForeground);
+}
+
+.todo-list .delete-btn {
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.todo-list .delete-btn:hover {
+  background-color: var(--vscode-button-hoverBackground);
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  padding-top: 10px;
+}
+
+#new-task-input {
+  flex-grow: 1;
+  padding: 10px;
+  background-color: var(--vscode-input-background);
+  border: none;
+  border-radius: 5px;
+  color: var(--vscode-input-foreground);
+  margin-right: 10px;
+}
+
+#new-task-input::placeholder {
+  color: var(--vscode-input-placeholderForeground);
+}
+
+.add-btn {
+  background-color: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  border: none;
+  padding: 10px;
+  width: 38px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.add-btn:hover {
+  background-color: var(--vscode-button-hoverBackground);
+}
