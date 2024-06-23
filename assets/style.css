@@ -1,6 +1,17 @@
 :root {
   --font-family: var(--vscode-font-family);
   --font-size: var(--vscode-font-size);
+  --focusBorder: var(--vscode-focusBorder);
+  --background: var(--vscode-editor-background);
+  --foreground: var(--vscode-editor-foreground);
+  --inputBackground: var(--vscode-input-background);
+  --inputForeground: var(--vscode-input-foreground);
+  --inputPlaceholderForeground: var(--vscode-input-placeholderForeground);
+  --buttonBackground: var(--vscode-button-background);
+  --buttonForeground: var(--vscode-button-foreground);
+  --buttonHoverBackground: var(--vscode-button-hoverBackground);
+  --listHoverBackground: var(--vscode-list-hoverBackground);
+  --disabledForeground: var(--vscode-disabledForeground);
 }
 
 * {
@@ -8,15 +19,14 @@
   padding: 0;
   box-sizing: border-box;
   font-family: var(--font-family);
-  font-size: 14px;
+  font-size: var(--font-size);
 }
 
-html,
-body {
+html, body {
   width: 100%;
   height: 100%;
-  background-color: var(--vscode-editor-background);
-  color: var(--vscode-editor-foreground);
+  background-color: var(--background);
+  color: var(--foreground);
 }
 
 .sidebar {
@@ -27,7 +37,6 @@ body {
   background-color: var(--vscode-sideBar-background);
   padding: 20px;
   min-width: 300px;
-  /* Set your desired minimum width here */
 }
 
 .todo-list {
@@ -41,29 +50,46 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  background-color: var(--vscode-list-hoverBackground);
+  background-color: var(--listHoverBackground);
   margin-bottom: 10px;
   border-radius: 5px;
-  color: var(--vscode-editor-foreground);
+  color: var(--foreground);
+  border: none; /* Remove default border */
 }
 
 .todo-list li.done {
   text-decoration: line-through;
-  color: var(--vscode-disabledForeground);
+  color: var(--disabledForeground);
 }
 
+.editing {
+  outline: 1px solid var(--focusBorder);
+}
+
+.todo-list .edit-btn,
+.todo-list .pin-btn,
 .todo-list .delete-btn {
-  background-color: var(--vscode-button-background);
-  color: var(--vscode-button-foreground);
+  background-color: var(--buttonBackground);
+  color: var(--buttonForeground);
   border: none;
-  padding: 5px 10px;
+  padding: 4px;
   cursor: pointer;
   border-radius: 5px;
 }
 
-.todo-list .delete-btn:hover {
-  background-color: var(--vscode-button-hoverBackground);
+.todo-list .delete-btn:hover,
+.todo-list .pin-btn:hover,
+.todo-list .edit-btn:hover {
+  background-color: var(--buttonHoverBackground);
 }
+
+.edit-icon, .editing-icon, .pin-icon, .pinned-icon, .delete-icon {
+  width: calc(var(--vscode-font-size) + 4px);
+  height: calc(var(--vscode-font-size) + 4px); 
+  vertical-align: middle;
+  fill: var(--foreground);
+}
+
 
 .input-container {
   display: flex;
@@ -74,20 +100,20 @@ body {
 #new-task-input {
   flex-grow: 1;
   padding: 10px;
-  background-color: var(--vscode-input-background);
-  border: none;
+  background-color: var(--inputBackground);
+  border: 1px solid var(--focusBorder); /* Update border color */
   border-radius: 5px;
-  color: var(--vscode-input-foreground);
+  color: var(--inputForeground);
   margin-right: 10px;
 }
 
 #new-task-input::placeholder {
-  color: var(--vscode-input-placeholderForeground);
+  color: var(--inputPlaceholderForeground);
 }
 
 .add-btn {
-  background-color: var(--vscode-button-background);
-  color: var(--vscode-button-foreground);
+  background-color: var(--buttonBackground);
+  color: var(--buttonForeground);
   border: none;
   padding: 10px;
   width: 38px;
@@ -96,5 +122,5 @@ body {
 }
 
 .add-btn:hover {
-  background-color: var(--vscode-button-hoverBackground);
+  background-color: var(--buttonHoverBackground);
 }

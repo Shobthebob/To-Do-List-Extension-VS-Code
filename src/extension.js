@@ -36,9 +36,7 @@ class MyWebviewViewProvider {
                 <title>Webview</title>
             </head>
             <body class="sidebar">
-							<!-- <div class="sidebar"> -->
 								<ul class="todo-list" id="todo-list">
-									<!-- Tasks will be dynamically added here -->
 								</ul>
 								<div class="input-container">
 									<input type="text" id="new-task-input" placeholder="Add a new task...">
