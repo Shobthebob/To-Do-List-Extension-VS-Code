@@ -1,29 +1,36 @@
 "use strict";
 const vscode = require('vscode');
 
-/**
- * @param {vscode.ExtensionContext} context
- */
-
 class MyWebviewViewProvider {
-	constructor(_extensionUri) {
+	constructor(_extensionUri, viewType) {
 		this._extensionUri = _extensionUri;
+		this._viewType = viewType;
+		this._view = undefined;
 	}
 
 	resolveWebviewView(webviewView, context, _token) {
 		this._view = webviewView;
 		webviewView.webview.options = {
-			// Allow scripts in the webview
 			enableScripts: true,
-			localResourceRoots: [
-				this._extensionUri
-			]
+			localResourceRoots: [this._extensionUri]
 		};
-		// Set the HTML content for the webview
-		webviewView.webview.html = this.getHtmlForWebview(webviewView.webview);
+
+		if (this._viewType === 'todo') {
+			webviewView.webview.html = this.getTodoHtml(webviewView.webview);
+		} else if (this._viewType === 'completed') {
+			webviewView.webview.html = this.getCompletedHtml(webviewView.webview);
+		}
+
+		webviewView.webview.onDidReceiveMessage((message) => {
+			if (this._viewType === 'todo' && message.command === 'addCompletedTask') {
+				vscode.commands.executeCommand('completed.addTask', message.task);
+			} else if (this._viewType === 'completed' && message.command === 'addTask') {
+				vscode.commands.executeCommand('toDo.addTask', message.task);
+			}
+		});
 	}
 
-	getHtmlForWebview(webview) {
+	getTodoHtml(webview) {
 		const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'assets', 'style.css'));
 		const mainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'src', 'main.js'));
 		const nonce = getNonce();
@@ -32,38 +39,66 @@ class MyWebviewViewProvider {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-								<link href="${styleUri}" rel="stylesheet">
-                <title>Webview</title>
+                <link href="${styleUri}" rel="stylesheet">
+                <title>To-Do List</title>
             </head>
             <body class="sidebar">
-								<ul class="todo-list" id="todo-list">
-								</ul>
-								<div class="input-container">
-									<input type="text" id="new-task-input" placeholder="Add a new task...">
-									<button id="add-task-button" class="add-btn">+</button>
-								</div>
-						<script nonce="${nonce}" src="${mainUri}"></script>
-						</body>
-            </html>
-						`;
+                <ul class="todo-list" id="todo-list"></ul>
+                <div class="input-container">
+                    <input type="text" id="new-task-input" placeholder="Add a new task...">
+                    <button id="add-task-button" class="add-btn" title="Add task">+</button>
+                </div>
+                <script nonce="${nonce}" src="${mainUri}"></script>
+            </body>
+            </html>`;
+	}
+
+	getCompletedHtml(webview) {
+		const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'assets', 'style.css'));
+		const completedTasksUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'src', 'completedTasks.js'));
+		const nonce = getNonce();
+		return `<!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <link href="${styleUri}" rel="stylesheet">
+                <title>Completed Tasks</title>
+            </head>
+            <body class="sidebar">
+                <ul class="completed-tasks-list" id="completed-tasks-list"></ul>
+                <script nonce="${nonce}" src="${completedTasksUri}"></script>
+            </body>
+            </html>`;
 	}
 }
 
 function activate(context) {
+	const todoProvider = new MyWebviewViewProvider(context.extensionUri, 'todo');
+	let todoDisposable = vscode.window.registerWebviewViewProvider("toDo", todoProvider, { webviewOptions: { retainContextWhenHidden: true } });
+	context.subscriptions.push(todoDisposable);
 
-	// context is basically the main parent variable that handles everything from the high lvl perspective. It is a variable made by the vs code extention api itself.
-	// subsctiptions is an array which comes with the vs code extention api as well.
-	// disposables are those objects that have to be freed from the memory once the extention is deactivated
-	// providers are those objects that tell vscode what ui on the panel should look like.
+	// const completedProvider = new MyWebviewViewProvider(context.extensionUri, 'completed');
+	// let completedDisposable = vscode.window.registerWebviewViewProvider("completed", completedProvider, { webviewOptions: { retainContextWhenHidden: true } });
+	// context.subscriptions.push(completedDisposable);
+	// {
+	//   "type": "webview",
+	//   "id": "completed",
+	//   "name": "Completed Tasks"
+	// }
 
-	const provider = new MyWebviewViewProvider(context.extensionUri);
-	let disposable = vscode.window.registerWebviewViewProvider("toDo", provider, { webviewOptions: { retainContextWhenHidden: true } });
-	context.subscriptions.push(disposable);
-
-	let disposableCommand = vscode.commands.registerCommand('toDo.yo', () => {
-		vscode.window.showInformationMessage("YOOOOOOOOOOOOOO!");
-	});
-	context.subscriptions.push(disposableCommand);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('toDo.addTask', (task) => {
+			if (todoProvider._view) {
+				todoProvider._view.webview.postMessage({ command: 'addTask', task: task });
+			}
+		}),
+		vscode.commands.registerCommand('completed.addTask', (task) => {
+			if (completedProvider._view) {
+				completedProvider._view.webview.postMessage({ command: 'addCompletedTask', task: task });
+			}
+		})
+	);
 }
 
 function getNonce() {
@@ -76,11 +111,4 @@ function getNonce() {
 }
 
 exports.activate = activate;
-
-// This method is called when your extension is deactivated
-function deactivate() { }
-
-module.exports = {
-	activate,
-	deactivate
-}
+exports.deactivate = function () { };

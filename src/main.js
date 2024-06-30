@@ -1,3 +1,5 @@
+'use strict';
+
 document.addEventListener('DOMContentLoaded', () => {
   const todoList = document.getElementById('todo-list');
   const newTaskInput = document.getElementById('new-task-input');
@@ -9,31 +11,70 @@ document.addEventListener('DOMContentLoaded', () => {
   const pinnedIcon = `<svg class="pinned-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M224,176a8,8,0,0,1-8,8H136v56a8,8,0,0,1-16,0V184H40a8,8,0,0,1,0-16h9.29L70.46,48H64a8,8,0,0,1,0-16H192a8,8,0,0,1,0,16h-6.46l21.17,120H216A8,8,0,0,1,224,176Z"></path></svg>`;
   const deleteIcon = `<svg class="delete-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path></svg>`;
 
+  const tasks = [];
+
   function addTask(taskText, pinned = false) {
     const taskItem = document.createElement('li');
     taskItem.innerHTML = `
-      <input type="checkbox" class="done-chkbx">
+      <input type="checkbox" class="done-chkbx" title="Mark done">
       <span>${taskText}</span>
       <div>
-        <button class="edit-btn">${editIcon}</button>
-        <button class="pin-btn">${pinIcon}</button>
-        <button class="delete-btn">${deleteIcon}</button>
+        <button class="edit-btn" title="Edit">${editIcon}</button>
+        <button class="pin-btn" title="Pin">${pinIcon}</button>
+        <button class="delete-btn" title="Delete">${deleteIcon}</button>
       </div>
     `;
+
+    const task = {
+      element: taskItem,
+      text: taskText,
+      pinned,
+      originalIndex: tasks.length
+    };
+
+    tasks.push(task);
+
     if (pinned) {
       taskItem.classList.add('pinned');
       todoList.insertBefore(taskItem, todoList.firstChild);
     } else {
       todoList.appendChild(taskItem);
     }
+
+    const checkbox = taskItem.querySelector('.done-chkbx');
+    checkbox.addEventListener('change', () => {
+      if (checkbox.checked) {
+        vscode.postMessage({ command: 'addCompletedTask', task: taskText });
+        taskItem.remove();
+      }
+    });
+
     taskItem.scrollIntoView({ behavior: 'smooth' });
   }
 
+  function handleAddTask() {
+    const task = newTaskInput.value.trim();
+    if (task !== '') {
+      addTask(task);
+      newTaskInput.value = '';
+    }
+  }
+
+  newTaskInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      handleAddTask();
+    }
+  });
+
   function deleteTask(taskItem) {
+    const index = tasks.findIndex(task => task.element === taskItem);
+    if (index !== -1) {
+      tasks.splice(index, 1);
+    }
     todoList.removeChild(taskItem);
   }
 
-  function toggleTaskDone(checkbox) {
+  function toggleTaskDone(checkbox, taskItem) {
     const taskSpan = checkbox.nextElementSibling;
     if (checkbox.checked) {
       taskSpan.style.textDecoration = 'line-through';
@@ -51,6 +92,12 @@ document.addEventListener('DOMContentLoaded', () => {
       todoList.insertBefore(taskItem, todoList.firstChild);
       const pinButton = taskItem.querySelector('.pin-btn');
       pinButton.innerHTML = pinnedIcon;
+      pinButton.title = "Unpin";
+
+      const index = tasks.findIndex(task => task.element === taskItem);
+      if (index !== -1) {
+        tasks[index].pinned = true;
+      }
     }
   }
 
@@ -58,6 +105,21 @@ document.addEventListener('DOMContentLoaded', () => {
     taskItem.classList.remove('pinned');
     const pinButton = taskItem.querySelector('.pin-btn');
     pinButton.innerHTML = pinIcon;
+    pinButton.title = "Pin";
+
+    const index = tasks.findIndex(task => task.element === taskItem);
+    if (index !== -1) {
+      tasks[index].pinned = false;
+      const originalIndex = tasks[index].originalIndex;
+      
+      todoList.removeChild(taskItem);
+      let nextTaskIndex = tasks.findIndex((task, i) => !task.pinned && i > originalIndex);
+      if (nextTaskIndex === -1) {
+        todoList.appendChild(taskItem);
+      } else {
+        todoList.insertBefore(taskItem, tasks[nextTaskIndex].element);
+      }
+    }
   }
 
   function editTask(taskItem) {
@@ -67,15 +129,14 @@ document.addEventListener('DOMContentLoaded', () => {
     taskSpan.contentEditable = true;
     taskSpan.focus();
 
-    // Change the edit icon to the editing icon
     const editButton = taskItem.querySelector('.edit-btn');
     editButton.innerHTML = editingIcon;
+    editButton.title = "Editing";
 
     function finishEditing() {
       taskSpan.contentEditable = false;
       taskSpan.classList.remove('editing');
-
-      // Revert the icon back to the original edit icon
+      editButton.title = "Edit";
       editButton.innerHTML = editIcon;
 
       if (taskSpan.textContent.trim() === '') {
@@ -92,19 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function handleAddTask() {
-    if (newTaskInput.value.trim() !== '') {
-      addTask(newTaskInput.value.trim());
-      newTaskInput.value = '';
-    }
-  }
-
-  newTaskInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      handleAddTask();
-    }
-  });
-
   addTaskButton.addEventListener('click', handleAddTask);
 
   todoList.addEventListener('click', (e) => {
@@ -120,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (e.target.closest('.edit-btn')) {
       editTask(taskItem);
     } else if (e.target.type === 'checkbox') {
-      toggleTaskDone(e.target);
+      toggleTaskDone(e.target, taskItem);
     }
   });
 });
