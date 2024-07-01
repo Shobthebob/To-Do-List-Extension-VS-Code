@@ -51,7 +51,7 @@ html, body {
   align-items: center;
   padding: 5px 10px;
   background-color: var(--listHoverBackground);
-  margin-bottom: 1px;
+  margin-bottom: 7px;
   border-radius: 5px;
   color: var(--foreground);
   border: none; /* Remove default border */
@@ -60,6 +60,26 @@ html, body {
 .todo-list li.done {
   text-decoration: line-through;
   color: var(--disabledForeground);
+}
+
+.task-txt {
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Show at most 3 lines */
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  max-height: calc(1.2em * 3); /* Assuming 1.2em line height, adjust as needed */
+  line-height: 1.2em; /* Adjust line height as needed */
+  margin: 0 10px;
+}
+
+.function-btns {
+  display: flex;
+  flex-direction: row;
+  gap: 5px; /* Adjust the spacing between buttons as needed */
+}
+
+.function-btns button {
+  flex: 0 0 auto; /* Prevent buttons from shrinking */
 }
 
 .editing {

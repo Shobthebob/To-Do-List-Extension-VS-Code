@@ -12,13 +12,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const deleteIcon = `<svg class="delete-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path></svg>`;
 
   const tasks = [];
+  const vscode = acquireVsCodeApi();
+
+  function applyScrollIfNeeded(element) {
+    const lineHeight = parseFloat(window.getComputedStyle(element).lineHeight);
+    const maxHeight = lineHeight * 3; // 3 lines
+    if (element.scrollHeight > maxHeight) {
+      element.style.overflowY = 'auto';
+    } else {
+      element.style.overflowY = 'hidden';
+    }
+  }
 
   function addTask(taskText, pinned = false) {
     const taskItem = document.createElement('li');
     taskItem.innerHTML = `
       <input type="checkbox" class="done-chkbx" title="Mark done">
-      <span>${taskText}</span>
-      <div>
+      <span class="task-txt">${taskText}</span>
+      <div class="function-btns">
         <button class="edit-btn" title="Edit">${editIcon}</button>
         <button class="pin-btn" title="Pin">${pinIcon}</button>
         <button class="delete-btn" title="Delete">${deleteIcon}</button>
@@ -32,23 +43,20 @@ document.addEventListener('DOMContentLoaded', () => {
       originalIndex: tasks.length
     };
 
-    tasks.push(task);
-
     if (pinned) {
       taskItem.classList.add('pinned');
+      const pinButton = taskItem.querySelector('.pin-btn');
+      pinButton.innerHTML = pinnedIcon;
+      pinButton.title = "Unpin";
       todoList.insertBefore(taskItem, todoList.firstChild);
-    } else {
+    }
+    else {
       todoList.appendChild(taskItem);
     }
 
-    const checkbox = taskItem.querySelector('.done-chkbx');
-    checkbox.addEventListener('change', () => {
-      if (checkbox.checked) {
-        vscode.postMessage({ command: 'addCompletedTask', task: taskText });
-        taskItem.remove();
-      }
-    });
-
+    const taskTextElement = taskItem.querySelector('.task-txt');
+    applyScrollIfNeeded(taskTextElement);
+    tasks.push(task);
     taskItem.scrollIntoView({ behavior: 'smooth' });
   }
 
@@ -67,9 +75,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function deleteTask(taskItem) {
-    const index = tasks.findIndex(task => task.element === taskItem);
+    const index = tasks.findIndex((task) => { return task.element === taskItem; });
     if (index !== -1) {
+      const taskText = tasks[index].text;
       tasks.splice(index, 1);
+      vscode.postMessage({ command: 'deleteTaskNotification', task: taskText });
     }
     todoList.removeChild(taskItem);
   }
@@ -111,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (index !== -1) {
       tasks[index].pinned = false;
       const originalIndex = tasks[index].originalIndex;
-      
+
       todoList.removeChild(taskItem);
       let nextTaskIndex = tasks.findIndex((task, i) => !task.pinned && i > originalIndex);
       if (nextTaskIndex === -1) {
@@ -142,6 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (taskSpan.textContent.trim() === '') {
         deleteTask(taskItem);
       }
+      applyScrollIfNeeded(taskSpan);
       taskSpan.removeEventListener('blur', finishEditing);
     }
 
