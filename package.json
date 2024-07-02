@@ -1,12 +1,17 @@
 {
-  "name": "to-do-list",
-  "displayName": "To-Do List",
+  "name": "to-do-manager",
+  "displayName": "To-Do Manager",
   "description": "A simple to-do list extension to manage your tasks.",
-  "version": "0.0.1",
-  "publisher": "Shob",
+  "version": "1",
+  "publisher": "ShoubhitJamadhiar",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Shobthebob/To-Do-List-Extension-VS-Code"
+  },
   "engines": {
     "vscode": "^1.89.0"
   },
+  "icon":"./assets/logo.png",
   "categories": [
     "Visualization",
     "Other"
