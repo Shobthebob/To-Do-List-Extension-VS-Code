@@ -35,6 +35,8 @@ Seamlessly streamline your workflow and master your daily tasks directly in VS C
 3. Search for "To-Do Manager" (Publisher: Shoubhit Jamadhiar)
 4. Click on the "Install" button
 
+Alternatively, you can also use the [VS marketplace](https://marketplace.visualstudio.com/items?itemName=ShoubhitJamadhiar.to-do-manager) to download this extension
+
 ## Usage
 
 1. After installation you'll see a new icon in the Activity Bar.
