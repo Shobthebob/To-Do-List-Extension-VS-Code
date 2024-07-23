@@ -1,10 +1,10 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
+
   const todoList = document.getElementById('todo-list');
   const newTaskInput = document.getElementById('new-task-input');
   const addTaskButton = document.getElementById('add-task-button');
-
   const icons = {
     kebab: `<svg class="three-dots-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path d="M128,96a32,32,0,1,0,32,32A32,32,0,0,0,128,96Zm0,48a16,16,0,1,1,16-16A16,16,0,0,1,128,144Zm0-64A32,32,0,1,0,96,48,32,32,0,0,0,128,80Zm0-48a16,16,0,1,1-16,16A16,16,0,0,1,128,32Zm0,144a32,32,0,1,0,32,32A32,32,0,0,0,128,176Zm0,48a16,16,0,1,1,16-16A16,16,0,0,1,128,224Z"></path></svg>`,
     edit: `<svg class="edit-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M225.9,74.78,181.21,30.09a14,14,0,0,0-19.8,0L38.1,153.41a13.94,13.94,0,0,0-4.1,9.9V208a14,14,0,0,0,14,14H92.69a13.94,13.94,0,0,0,9.9-4.1L225.9,94.58a14,14,0,0,0,0-19.8ZM94.1,209.41a2,2,0,0,1-1.41.59H48a2,2,0,0,1-2-2V163.31a2,2,0,0,1,.59-1.41L136,72.48,183.51,120ZM217.41,86.1,192,111.51,144.49,64,169.9,38.58a2,2,0,0,1,2.83,0l44.68,44.69a2,2,0,0,1,0,2.83Z"></path></svg>`,
@@ -13,9 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
     pinned: `<svg class="pinned-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M224,176a8,8,0,0,1-8,8H136v56a8,8,0,0,1-16,0V184H40a8,8,0,0,1,0-16h9.29L70.46,48H64a8,8,0,0,1,0-16H192a8,8,0,0,1,0,16h-6.46l21.17,120H216A8,8,0,0,1,224,176Z"></path></svg>`,
     delete: `<svg class="delete-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path></svg>`
   };
-
   const tasks = [];
   const vscode = acquireVsCodeApi();
+  let taskCounter;
 
   function applyScrollIfNeeded(element) {
     const lineHeight = parseFloat(window.getComputedStyle(element).lineHeight);
@@ -40,24 +40,15 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     `;
 
+    taskCounter = tasks.length;
     const task = {
+      index: taskCounter + 1,
       element: taskItem,
       text: taskText,
-      pinned,
-      originalIndex: tasks.length
+      //! originalIndex: tasks.length
     };
 
-    if (pinned) {
-      taskItem.classList.add('pinned');
-      const pinButton = taskItem.querySelector('.pin-btn');
-      pinButton.innerHTML = icons.pinned;
-      pinButton.title = "Unpin";
-      todoList.insertBefore(taskItem, todoList.firstChild);
-    }
-    else {
-      todoList.appendChild(taskItem);
-    }
-
+    todoList.appendChild(taskItem);
     const taskTextElement = taskItem.querySelector('.task-txt');
     applyScrollIfNeeded(taskTextElement);
     tasks.push(task);
@@ -103,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const isPinned = taskItem.classList.contains('pinned');
     if (!isPinned) {
       taskItem.classList.add('pinned');
-        todoList.insertBefore(taskItem, todoList.firstChild);
+      todoList.insertBefore(taskItem, todoList.firstChild);
       const pinButton = taskItem.querySelector('.pin-btn');
       pinButton.innerHTML = icons.pinned;
       pinButton.title = "Unpin";
@@ -171,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       editButton.style.removeProperty("display");
       if (!taskItem.classList.contains("pinned")) {
-        kebab.style.removeProperty("display");        
+        kebab.style.removeProperty("display");
       }
 
 
@@ -180,6 +171,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       applyScrollIfNeeded(taskSpan);
       taskSpan.removeEventListener('blur', finishEditing);
+
+      for (let i = 0; i < tasks.length; i++) {
+        if (tasks[i].text === originalText) {
+          tasks[i].text = taskSpan.textContent;
+          break;
+        }
+      }
     }
 
     taskSpan.addEventListener('blur', finishEditing);
