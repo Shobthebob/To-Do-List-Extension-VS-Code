@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
     pinned: `<svg class="pinned-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M224,176a8,8,0,0,1-8,8H136v56a8,8,0,0,1-16,0V184H40a8,8,0,0,1,0-16h9.29L70.46,48H64a8,8,0,0,1,0-16H192a8,8,0,0,1,0,16h-6.46l21.17,120H216A8,8,0,0,1,224,176Z"></path></svg>`,
     delete: `<svg class="delete-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path></svg>`
   };
-  const tasks = [];
+  let tasks = [];
+  const pinnedTasks = [];
   const vscode = acquireVsCodeApi();
   let taskCounter;
 
@@ -42,10 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     taskCounter = tasks.length;
     const task = {
-      index: taskCounter + 1,
+      index: taskCounter,
       element: taskItem,
       text: taskText,
-      //! originalIndex: tasks.length
     };
 
     todoList.appendChild(taskItem);
@@ -100,14 +100,21 @@ document.addEventListener('DOMContentLoaded', () => {
       pinButton.title = "Unpin";
       pinButton.style.display = "inline";
 
+      for (let i = 0; i < tasks.length; i++) {
+        if (tasks[i].element === taskItem) {
+          pinnedTasks.unshift(tasks[i]);
+          tasks.splice(i, 1);
+          break;
+        }
+      }
+
       const kebab = taskItem.querySelector('.three-dots-btn');
       if (kebab.style.display !== "none") {
         kebab.style.display = "none";
       }
-
-      const index = tasks.findIndex(task => task.element === taskItem);
-      if (index !== -1) {
-        tasks[index].pinned = true;
+      const del = taskItem.querySelector('.delete-btn');
+      if (del.style.display !== "none") {
+        del.style.display = "none";
       }
     }
   }
@@ -120,21 +127,32 @@ document.addEventListener('DOMContentLoaded', () => {
     pinButton.style.removeProperty("display");
 
     const kebab = taskItem.querySelector('.three-dots-btn');
+    const del = taskItem.querySelector('.delete-btn');
     kebab.style.removeProperty("display");
+    del.style.removeProperty("display");
 
-    const index = tasks.findIndex(task => task.element === taskItem);
-    if (index !== -1) {
-      tasks[index].pinned = false;
-      const originalIndex = tasks[index].originalIndex;
-
-      todoList.removeChild(taskItem);
-      let nextTaskIndex = tasks.findIndex((task, i) => !task.pinned && i > originalIndex);
-      if (nextTaskIndex === -1) {
-        todoList.appendChild(taskItem);
-      } else {
-        todoList.insertBefore(taskItem, tasks[nextTaskIndex].element);
+    let pinnedTask;
+    for (let i = 0; i < pinnedTasks.length; i++) {
+      if (pinnedTasks[i].element === taskItem) {
+        pinnedTask = pinnedTasks[i];
+        pinnedTasks.splice(i, 1);
+        break;
       }
     }
+    let concat = 0;
+    let j;
+    for (j = 0; j < tasks.length; j++) {
+      if (pinnedTask.index < tasks[j].index) {
+        tasks = tasks.slice(0, j).concat([pinnedTask]).concat(tasks.slice(j));
+        concat = 1;
+        break;
+      }
+    }
+    if (concat == 0) {
+      tasks.push(pinnedTask);
+      todoList.insertBefore(taskItem, null);
+    }
+    todoList.insertBefore(taskItem, todoList.children[pinnedTasks.length+j+1])
   }
 
   function editTask(taskItem) {
