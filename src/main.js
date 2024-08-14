@@ -1,4 +1,5 @@
 'use strict';
+/* eslint-disable no-undef */
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -28,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function addTask(taskText, pinned = false) {
+  function addTask(taskText) {
     const taskItem = document.createElement('li');
     taskItem.innerHTML = `
       <input type="checkbox" class="done-chkbx" title="Mark done">
@@ -81,13 +82,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function toggleTaskDone(checkbox, taskItem) {
     const taskSpan = checkbox.nextElementSibling;
+    const pin = taskItem.querySelector('.pin-btn');
+    const edit = taskItem.querySelector('.edit-btn');
     if (checkbox.checked) {
+      if (taskItem.classList.contains('pinned')) {
+        unpinTask(taskItem)
+      }
       taskSpan.style.textDecoration = 'line-through';
       taskSpan.style.color = 'var(--disabledForeground)';
+      pin.style.display = 'none';
+      edit.style.display = 'none';
+
     } else {
       taskSpan.style.textDecoration = 'none';
       taskSpan.style.color = 'var(--foreground)';
-    }
+      pin.style.removeProperty("display");
+      edit.style.removeProperty("display");
+  }
   }
 
   function pinTask(taskItem) {

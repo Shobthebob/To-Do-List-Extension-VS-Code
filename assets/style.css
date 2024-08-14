@@ -82,12 +82,6 @@ body {
   gap: 5px;
 }
 
-.three-dots {
-  display: none;
-  align-items: center;
-  cursor: pointer;
-}
-
 .todo-list .edit-btn,
 .todo-list .pin-btn,
 .todo-list .delete-btn {
