@@ -1,61 +1,74 @@
 {
-  "name": "to-do-manager",
-  "displayName": "To-Do Manager",
-  "description": "A simple to-do list extension to manage your tasks.",
-  "version": "1.0.1",
-  "publisher": "ShoubhitJamadhiar",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Shobthebob/To-Do-List-Extension-VS-Code"
-  },
-  "engines": {
-    "vscode": "^1.89.0"
-  },
-  "icon":"./assets/logo.png",
-  "categories": [
-    "Visualization",
-    "Other"
-  ],
-  "activationEvents": [],
-  "main": "./src/extension.js",
-  "contributes": {
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "to-do",
-          "title": "To-Do List",
-          "icon": "./assets/icon.png"
-        }
-      ]
-    },
-    "views": {
-      "to-do": [
-        {
-          "type": "webview",
-          "id": "toDo",
-          "name": "To-Do List"
-        }
-      ]
-    },
-    "commands": [
-      {
-        "command": "toDo.yo",
-        "title": "Yo"
-      }
-    ]
-  },
-  "scripts": {
-    "lint": "eslint .",
-    "pretest": "npm run lint",
-    "test": "vscode-test"
-  },
-  "devDependencies": {
-    "@types/vscode": "^1.89.0",
-    "@types/mocha": "^10.0.6",
-    "@types/node": "18.x",
-    "eslint": "^8.57.0",
-    "typescript": "^5.4.5",
-    "@vscode/test-cli": "^0.0.9",
-    "@vscode/test-electron": "^2.4.0"
-  }
+	"name": "to-do-manager",
+	"displayName": "To-Do Manager",
+	"description": "A simple to-do list extension to manage your tasks.",
+	"version": "1.0.2",
+	"publisher": "ShoubhitJamadhiar",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Shobthebob/To-Do-List-Extension-VS-Code"
+	},
+	"engines": {
+		"vscode": "^1.89.0"
+	},
+	"icon": "./assets/logo.png",
+	"categories": [
+		"Visualization",
+		"Other"
+	],
+	"activationEvents": [],
+	"main": "./src/extension.js",
+	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "to-do",
+					"title": "To-Do List",
+					"icon": "./assets/icon.png"
+				}
+			]
+		},
+		"views": {
+			"to-do": [
+				{
+					"type": "webview",
+					"id": "toDo",
+					"name": "To-Do List"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "toDo.yo",
+				"title": "Yo"
+			}
+		]
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"pretest": "npm run lint",
+		"test": "vscode-test"
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.89.0",
+		"@types/mocha": "^10.0.6",
+		"@types/node": "18.x",
+		"eslint": "^8.57.0",
+		"typescript": "^5.4.5",
+		"@vscode/test-cli": "^0.0.9",
+		"@vscode/test-electron": "^2.4.0"
+	},
+	"__metadata": {
+		"id": "fe4331b5-7f24-4ffd-a4b3-6bfd3d4b4b5a",
+		"publisherId": "c0ca32fb-46be-4cdd-8078-95e25f780071",
+		"publisherDisplayName": "Shoubhit Jamadhiar",
+		"targetPlatform": "undefined",
+		"isApplicationScoped": false,
+		"isPreReleaseVersion": false,
+		"hasPreReleaseVersion": false,
+		"installedTimestamp": 1727310336890,
+		"pinned": true,
+		"preRelease": false,
+		"source": "gallery"
+	}
 }
