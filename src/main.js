@@ -14,10 +14,26 @@ document.addEventListener('DOMContentLoaded', () => {
     pinned: `<svg class="pinned-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M224,176a8,8,0,0,1-8,8H136v56a8,8,0,0,1-16,0V184H40a8,8,0,0,1,0-16h9.29L70.46,48H64a8,8,0,0,1,0-16H192a8,8,0,0,1,0,16h-6.46l21.17,120H216A8,8,0,0,1,224,176Z"></path></svg>`,
     delete: `<svg class="delete-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path></svg>`
   };
-  let tasks = [];
-  const pinnedTasks = [];
+
+  let tasks = []; // with the HTML DOM element
+  let workspaceTasks = []; // for workspace because workspace cannot traverse over DOM elements
+  let pinnedCount = 0;
+  let completedCount = 0;
   const vscode = acquireVsCodeApi();
   let taskCounter;
+
+  function displayLists() {
+    // Used in debugging
+    console.log("\nTasks: {");
+    for (let i = 0; i < tasks.length; i++) {
+      console.log(tasks[i]);
+    }
+    console.log("}\nworkspaceTasks:{");
+    for (let i = 0; i < tasks.length; i++) {
+      console.log(workspaceTasks[i]);
+    }
+    console.log("}");
+  }
 
   function applyScrollIfNeeded(element) {
     const lineHeight = parseFloat(window.getComputedStyle(element).lineHeight);
@@ -29,31 +45,76 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function addTask(taskText) {
+  function reindex() {
+    for (let i = 0; i < tasks.length; i++) {
+      tasks[i].index = i;
+      workspaceTasks[i].index = i;
+    }
+  }
+
+  window.addEventListener('message', event => {
+    const message = event.data;
+    if (message.command === 'restoreTasks') {
+      let pinnedTasks = [], pinnedTask;
+      message.tasks.forEach(task => {
+        if (!task.isDone) {
+          pinnedTask = addTask(task, true);
+          if (task.isPinned) {
+            pinnedTasks.unshift(pinnedTask)
+          }
+        }
+        else {
+          deleteTask(task, true);
+        }
+      });
+      pinnedTasks.forEach(task => {
+        pinnedCount++;
+        pinTask(task, true);
+      });
+    }
+  });
+
+  function addTask(taskText, isObject = false) {
+    taskCounter = tasks.length;
+    let taskTask = { index: taskCounter };
+    let workspaceTask = { isPinned: false, isDone: false, index: taskCounter };
+    let task;
+
+    if (isObject) {
+      task = taskText;
+      taskText = taskText.text;
+      taskTask.index = task.index;
+      workspaceTask.isPinned = task.isPinned;
+      workspaceTask.index = task.index;
+    }
+
     const taskItem = document.createElement('li');
     taskItem.innerHTML = `
-      <input type="checkbox" class="done-chkbx" title="Mark done">
-      <span class="task-txt">${taskText}</span>
-      <div class="btns">
-        <button class="three-dots-btn">${icons.kebab}</button>
-        <button class="delete-btn" title="Delete">${icons.delete}</button>
-        <button class="edit-btn" title="Edit">${icons.edit}</button>
-        <button class="pin-btn" title="Pin">${icons.pin}</button>
-      </div>
+    <input type="checkbox" class="done-chkbx" title="Mark done">
+    <span class="task-txt">${taskText}</span>
+    <div class="btns">
+    <button class="three-dots-btn">${icons.kebab}</button>
+    <button class="delete-btn" title="Delete">${icons.delete}</button>
+    <button class="edit-btn" title="Edit">${icons.edit}</button>
+    <button class="pin-btn" title="Pin">${icons.pin}</button>
+    </div>
     `;
-
-    taskCounter = tasks.length;
-    const task = {
-      index: taskCounter,
-      element: taskItem,
-      text: taskText,
-    };
-
     todoList.appendChild(taskItem);
     const taskTextElement = taskItem.querySelector('.task-txt');
     applyScrollIfNeeded(taskTextElement);
-    tasks.push(task);
+
+    taskTask['element'] = taskItem;
+    taskTask['text'] = taskText;
+    workspaceTask['text'] = taskText;
+    tasks.push(taskTask);
+    workspaceTasks.push(workspaceTask);
     taskItem.scrollIntoView({ behavior: 'smooth' });
+
+    if (workspaceTask.isPinned) {
+      return taskTask.element;
+    }
+
+    vscode.postMessage({ command: 'updateWorkspaceState', tasks: workspaceTasks });
   }
 
   function handleAddTask() {
@@ -70,100 +131,191 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  function deleteTask(taskItem) {
+  function deleteTask(taskItem, isObject = false) {
+    let task = taskItem;
+
+    if (isObject) {
+      for (let i = 0; i < tasks.length; i++) {
+        if (taskItem.index === tasks[i].index) {
+          task = tasks[i].element;
+          break;
+        }
+      }
+    }
+
+    taskItem = task;
     const index = tasks.findIndex((task) => { return task.element === taskItem; });
+
     if (index !== -1) {
       const taskText = tasks[index].text;
       tasks.splice(index, 1);
+      workspaceTasks.splice(index, 1);
       vscode.postMessage({ command: 'deleteTaskNotification', task: taskText });
+      vscode.postMessage({ command: 'updateWorkspaceState', tasks: workspaceTasks });
     }
     todoList.removeChild(taskItem);
+
+    if (pinnedCount === 0 & completedCount === 0) {
+      reindex();
+    }
   }
 
   function toggleTaskDone(checkbox, taskItem) {
     const taskSpan = checkbox.nextElementSibling;
     const pin = taskItem.querySelector('.pin-btn');
     const edit = taskItem.querySelector('.edit-btn');
+
     if (checkbox.checked) {
       if (taskItem.classList.contains('pinned')) {
-        unpinTask(taskItem)
+        unpinTask(taskItem);
       }
       taskSpan.style.textDecoration = 'line-through';
       taskSpan.style.color = 'var(--disabledForeground)';
       pin.style.display = 'none';
       edit.style.display = 'none';
+      let workspaceTask;
+      completedCount++;
 
-    } else {
+      for (let i = 0; i < tasks.length; i++) {
+        if (tasks[i].element === taskItem) {
+          taskItem = tasks[i];
+          tasks.splice(i, 1);
+          workspaceTask = workspaceTasks.splice(i, 1)[0];
+          tasks.push(taskItem);
+          workspaceTask.isDone = true;
+          workspaceTasks.push(workspaceTask);
+
+          todoList.appendChild(taskItem.element);
+          break;
+        }
+      }
+    }
+    else {
       taskSpan.style.textDecoration = 'none';
       taskSpan.style.color = 'var(--foreground)';
       pin.style.removeProperty("display");
       edit.style.removeProperty("display");
-  }
+      let workspaceTask;
+
+      for (let i = 0; i < tasks.length; i++) {
+        if (tasks[i].element === taskItem) {
+          taskItem = tasks[i];
+          tasks.splice(i, 1);
+          workspaceTask = workspaceTasks.splice(i, 1)[0];
+          break;
+        }
+      }
+
+      completedCount--;
+      for (let j = 0; j < (tasks.length - completedCount); j++) {
+        if (tasks[j].index > taskItem.index) {
+          tasks.splice(j, 0, taskItem);
+          workspaceTask.isDone = false;
+          workspaceTasks.splice(j, 0, workspaceTask);
+          todoList.insertBefore(taskItem.element, todoList.children[j]);
+          break;
+        }
+      }
+      if (workspaceTask.isDone) {
+        tasks.splice(tasks.length, 0, taskItem);
+        workspaceTask.isDone = false;
+        workspaceTasks.splice(tasks.length, 0, workspaceTask);
+        todoList.insertBefore(taskItem.element, todoList.children[(tasks.length - completedCount)]);
+      }
+    }
+
+    vscode.postMessage({ command: 'updateWorkspaceState', tasks: workspaceTasks });
   }
 
-  function pinTask(taskItem) {
+  function pinTask(taskItem, isLoading = false) {
     const isPinned = taskItem.classList.contains('pinned');
+
     if (!isPinned) {
       taskItem.classList.add('pinned');
       todoList.insertBefore(taskItem, todoList.firstChild);
+
       const pinButton = taskItem.querySelector('.pin-btn');
       pinButton.innerHTML = icons.pinned;
       pinButton.title = "Unpin";
       pinButton.style.display = "inline";
 
+      if (pinnedCount === 0 & completedCount === 0) {
+        reindex();
+      }
+
+      if (!isLoading) {
+        pinnedCount++;
+      }
+
       for (let i = 0; i < tasks.length; i++) {
         if (tasks[i].element === taskItem) {
-          pinnedTasks.unshift(tasks[i]);
+          taskItem = tasks[i];
           tasks.splice(i, 1);
+          const workspaceTask = workspaceTasks.splice(i, 1)[0];
+          tasks.unshift(taskItem);
+          workspaceTask.isPinned = true;
+          workspaceTasks.unshift(workspaceTask);
           break;
         }
       }
 
-      const kebab = taskItem.querySelector('.three-dots-btn');
+      const kebab = taskItem.element.querySelector('.three-dots-btn');
       if (kebab.style.display !== "none") {
         kebab.style.display = "none";
       }
-      const del = taskItem.querySelector('.delete-btn');
+      const del = taskItem.element.querySelector('.delete-btn');
       if (del.style.display !== "none") {
         del.style.display = "none";
       }
+
+      vscode.postMessage({ command: 'updateWorkspaceState', tasks: workspaceTasks });
     }
   }
 
   function unpinTask(taskItem) {
     taskItem.classList.remove('pinned');
+    let workspaceTask;
+
     const pinButton = taskItem.querySelector('.pin-btn');
     pinButton.innerHTML = icons.pin;
     pinButton.title = "Pin";
     pinButton.style.removeProperty("display");
-
     const kebab = taskItem.querySelector('.three-dots-btn');
-    const del = taskItem.querySelector('.delete-btn');
     kebab.style.removeProperty("display");
+    const del = taskItem.querySelector('.delete-btn');
     del.style.removeProperty("display");
 
-    let pinnedTask;
-    for (let i = 0; i < pinnedTasks.length; i++) {
-      if (pinnedTasks[i].element === taskItem) {
-        pinnedTask = pinnedTasks[i];
-        pinnedTasks.splice(i, 1);
+    for (let i = 0; i < tasks.length; i++) {
+      if (tasks[i].element === taskItem) {
+        taskItem = tasks[i];
+        tasks.splice(i, 1);
+        workspaceTask = workspaceTasks.splice(i, 1)[0];
         break;
       }
     }
-    let concat = 0;
-    let j;
-    for (j = 0; j < tasks.length; j++) {
-      if (pinnedTask.index < tasks[j].index) {
-        tasks = tasks.slice(0, j).concat([pinnedTask]).concat(tasks.slice(j));
-        concat = 1;
+
+    pinnedCount--;
+    for (let i = pinnedCount; i < tasks.length; i++) {
+      if (tasks[i].index > taskItem.index) {
+        tasks.splice(i, 0, taskItem);
+        workspaceTask.isPinned = false;
+        workspaceTasks.splice(i, 0, workspaceTask);
+        todoList.insertBefore(taskItem.element, todoList.children[i + 1]);
         break;
       }
     }
-    if (concat == 0) {
-      tasks.push(pinnedTask);
-      todoList.insertBefore(taskItem, null);
+
+    if (workspaceTask.isPinned) {
+      tasks.splice(tasks.length, 0, taskItem);
+      workspaceTask.isPinned = false;
+      workspaceTasks.splice(tasks.length, 0, workspaceTask);
+      todoList.insertBefore(taskItem.element, null);
     }
-    todoList.insertBefore(taskItem, todoList.children[pinnedTasks.length+j+1])
+    if (pinnedCount === 0 & completedCount === 0) {
+      reindex();
+    }
+
+    vscode.postMessage({ command: 'updateWorkspaceState', tasks: workspaceTasks });
   }
 
   function editTask(taskItem) {
@@ -172,12 +324,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const originalText = taskSpan.textContent;
     taskSpan.contentEditable = true;
     taskSpan.focus();
-
     const editButton = taskItem.querySelector('.edit-btn');
     editButton.innerHTML = icons.editing;
     editButton.title = "Editing";
     editButton.style.display = "inline";
-
     const kebab = taskItem.querySelector('.three-dots-btn');
     if (kebab.style.display !== "none") {
       kebab.style.display = "none";
@@ -188,31 +338,37 @@ document.addEventListener('DOMContentLoaded', () => {
       taskSpan.classList.remove('editing');
       editButton.title = "Edit";
       editButton.innerHTML = icons.edit;
-
       editButton.style.removeProperty("display");
       if (!taskItem.classList.contains("pinned")) {
         kebab.style.removeProperty("display");
       }
-
-
       if (taskSpan.textContent.trim() === '') {
         deleteTask(taskItem);
       }
       applyScrollIfNeeded(taskSpan);
       taskSpan.removeEventListener('blur', finishEditing);
-
       for (let i = 0; i < tasks.length; i++) {
         if (tasks[i].text === originalText) {
           tasks[i].text = taskSpan.textContent;
+          workspaceTasks[i].text = taskSpan.textContent;
           break;
         }
       }
+      vscode.postMessage({ command: 'updateWorkspaceState', tasks: workspaceTasks });
+    }
+
+    function cancelEditing() {
+      taskSpan.textContent = originalText;
+      taskSpan.contentEditable = false;
     }
 
     taskSpan.addEventListener('blur', finishEditing);
-    taskSpan.addEventListener('keypress', function handleKeyPress(e) {
+    taskSpan.addEventListener('keydown', function handleKeyPress(e) {
       if (e.key === 'Enter') {
         finishEditing();
+      }
+      if (e.key === 'Escape') {
+        cancelEditing();
       }
     });
   }
@@ -220,7 +376,10 @@ document.addEventListener('DOMContentLoaded', () => {
   addTaskButton.addEventListener('click', handleAddTask);
 
   todoList.addEventListener('click', (e) => {
-    const taskItem = e.target.closest('li'); // not using document.createElement('li'); because I want just that one li 
+    const taskItem = e.target.closest('li');
+    if (!taskItem) {
+      return;
+    }
     if (e.target.closest('.delete-btn')) {
       deleteTask(taskItem);
     } else if (e.target.closest('.pin-btn')) {

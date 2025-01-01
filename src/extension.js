@@ -2,26 +2,34 @@
 const vscode = require('vscode');
 
 class MyWebviewViewProvider {
-	constructor(_extensionUri, viewType) {
+	constructor(_extensionUri, viewType, context) {
 		this._extensionUri = _extensionUri;
 		this._viewType = viewType;
+		this._context = context;
 		this._view = undefined;
 	}
 
-	resolveWebviewView(webviewView, context, _token) {
+	resolveWebviewView(webviewView) {
 		this._view = webviewView;
 		webviewView.webview.options = {
 			enableScripts: true,
 			localResourceRoots: [this._extensionUri]
 		};
-		
+
 		webviewView.webview.html = this.getTodoHtml(webviewView.webview);
 
-		webviewView.webview.onDidReceiveMessage((message) => {
+		const tasks = this._context.workspaceState.get('tasks', []);
+		webviewView.webview.postMessage({ command: 'restoreTasks', tasks: tasks });
+
+		webviewView.webview.onDidReceiveMessage(async (message) => {
+			if (message.command === 'updateWorkspaceState') {
+				await this._context.workspaceState.update('tasks', message.tasks);
+			}
 			if (message.command === 'deleteTaskNotification') {
-					vscode.window.showInformationMessage(`Task deleted: ${message.task}`);
+				vscode.window.showInformationMessage(`Task deleted: ${message.task}`);
 			}
 		});
+
 	}
 
 	getTodoHtml(webview) {
@@ -49,7 +57,7 @@ class MyWebviewViewProvider {
 }
 
 function activate(context) {
-	const todoProvider = new MyWebviewViewProvider(context.extensionUri, 'todo');
+	const todoProvider = new MyWebviewViewProvider(context.extensionUri, 'todo', context);
 	let todoDisposable = vscode.window.registerWebviewViewProvider("toDo", todoProvider, { webviewOptions: { retainContextWhenHidden: true } });
 	context.subscriptions.push(todoDisposable);
 
