@@ -4,6 +4,15 @@ Seamlessly streamline your workflow and master your daily tasks directly in VS C
 
 ![opening](https://github.com/Shobthebob/To-Do-List-Extension-VS-Code/assets/77617762/d43883e0-bcd1-421d-ac93-7e96d226d9e1)
 
+## Installation
+
+1. Open Visual Studio Code
+2. Click on 'Extensions (Ctrl+Shift+X or Cmd+Shift+X)'
+3. Search for "To-Do Manager" (Publisher: Shoubhit Jamadhiar)
+4. Click on the "Install" button
+
+Alternatively, you can also use the [VS marketplace](https://marketplace.visualstudio.com/items?itemName=ShoubhitJamadhiar.to-do-manager) to download this extension
+
 ## Features
 
 - Create and manage tasks directly within VS Code
@@ -27,15 +36,6 @@ Seamlessly streamline your workflow and master your daily tasks directly in VS C
   ![deleting](https://github.com/Shobthebob/To-Do-List-Extension-VS-Code/assets/77617762/54266584-8f93-4fc0-b8b5-216c832fc71d)
 
 <!-- - Persistent storage of tasks between VS Code sessions -->
-
-## Installation
-
-1. Open Visual Studio Code
-2. Click on 'Extensions (Ctrl+Shift+X or Cmd+Shift+X)'
-3. Search for "To-Do Manager" (Publisher: Shoubhit Jamadhiar)
-4. Click on the "Install" button
-
-Alternatively, you can also use the [VS marketplace](https://marketplace.visualstudio.com/items?itemName=ShoubhitJamadhiar.to-do-manager) to download this extension
 
 ## Usage
 
