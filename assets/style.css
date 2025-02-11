@@ -37,13 +37,12 @@ body {
   height: 100%;
   background-color: var(--vscode-sideBar-background);
   padding: 20px;
-  min-width: 300px;
+  min-width: 230px;
 }
 
 .todo-list {
   flex-grow: 1;
   overflow-y: auto;
-  padding-right: 10px;
 }
 
 .todo-list li {
@@ -146,7 +145,8 @@ body {
 }
 
 #new-task-input {
-  flex-grow: 1;
+  flex: 1 1 auto;
+  width: 140px;
   padding: 10px;
   background-color: var(--inputBackground);
   border: none;
