@@ -37,7 +37,6 @@ body {
   height: 100%;
   background-color: var(--vscode-sideBar-background);
   padding: 20px;
-  min-width: 230px;
 }
 
 .todo-list {
@@ -49,7 +48,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 5px 10px;
+  padding: 5px 10px 5px 10px;
   background-color: var(--listHoverBackground);
   margin-bottom: 7px;
   border-radius: 5px;
@@ -95,7 +94,6 @@ body {
 .todo-list .btns:hover .pin-btn, 
 .todo-list .btns:hover .delete-btn {
   display: inline;
-
 }
 
 .editing {
@@ -104,7 +102,6 @@ body {
 
 .todo-list .three-dots-btn{
   background-color: transparent !important;
-
 }
 
 .todo-list .three-dots-btn,
@@ -131,7 +128,9 @@ body {
 .editing-icon,
 .pin-icon,
 .pinned-icon,
-.delete-icon {
+.delete-icon,
+.add-icon,
+.menu-icon {
   width: calc(var(--vscode-font-size) + 5px);
   height: calc(var(--vscode-font-size) + 5px);
   vertical-align: middle;
@@ -141,7 +140,10 @@ body {
 .input-container {
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
   padding-top: 10px;
+  gap: 10px;
 }
 
 #new-task-input {
@@ -152,24 +154,53 @@ body {
   border: none;
   border-radius: 5px;
   color: var(--inputForeground);
-  margin-right: 10px;
 }
 
 #new-task-input::placeholder {
   color: var(--inputPlaceholderForeground);
 }
 
-.add-btn {
+.add-btn{
+  display: flex;
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+}
+
+
+
+.menu-btn {
+  background-color: transparent !important;
+  width: auto
+  
+}
+
+.add-btn,
+.menu-btn {
   background-color: var(--buttonBackground);
   color: var(--buttonForeground);
   border: none;
   padding: 10px;
-  width: 38px;
   cursor: pointer;
   border-radius: 5px;
   transition: all 300ms;
 }
 
-.add-btn:hover {
+.add-btn:hover,
+.menu-btn:hover {
   background-color: var(--buttonHoverBackground);
+}
+
+/* Media query for screens narrower than 188px */
+@media (max-width: 228px) {
+  .add-icon{
+    width: 18px;
+  }
+  
+  .add-btn {
+    display: flex;
+    justify-content: center;
+    width: 80%; /* Button takes full width */
+    height: 38px
+  }
 }
