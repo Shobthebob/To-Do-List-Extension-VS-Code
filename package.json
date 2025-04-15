@@ -11,7 +11,7 @@
   "engines": {
     "vscode": "^1.89.0"
   },
-  "icon":"./assets/logo.png",
+  "icon": "./assets/logo.png",
   "categories": [
     "Visualization",
     "Other"
@@ -31,18 +31,54 @@
     "views": {
       "to-do": [
         {
+          "icon": "",
           "type": "webview",
           "id": "toDo",
-          "name": "To-Do List"
+          "name": "To-Do List",
+          "initialSize": 3
+        },
+        {
+          "icon": "",
+          "type": "webview",
+          "id": "completed",
+          "name": "Completed Tasks",
+          "initialSize": 0
         }
       ]
     },
     "commands": [
       {
-        "command": "toDo.yo",
-        "title": "Yo"
+        "command": "toDo.importTasks",
+        "title": "Import Tasks"
+      },
+      {
+        "command": "toDo.exportTasks",
+        "title": "Export Tasks"
+      },
+      {
+        "command": "completed.clearAll",
+        "title": "Clear All"
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "toDo.importTasks",
+          "when": "view == toDo",
+          "group": "transfer"
+        },
+        {
+          "command": "toDo.exportTasks",
+          "when": "view == toDo",
+          "group": "transfer"
+        },
+        {
+          "command": "completed.clearAll",
+          "when": "view == completed",
+          "group": "clear"
+        }
+      ]
+    }
   },
   "scripts": {
     "lint": "eslint .",

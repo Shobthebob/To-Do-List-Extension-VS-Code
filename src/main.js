@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
   let tasks = []; // with the HTML DOM element
   let workspaceTasks = []; // for workspace because workspace cannot traverse over DOM elements
   let pinnedCount = 0;
-  let completedCount = 0;
   const vscode = acquireVsCodeApi();
   let taskCounter;
 
@@ -51,11 +50,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function adjustMarginForScrollbar() {
     const hasScrollbar = todoList.scrollHeight > todoList.clientHeight; // Check if scrollbar is present
     const listItems = todoList.querySelectorAll('li');
-    
+
     listItems.forEach((item) => {
       if (hasScrollbar) {
         item.style.marginRight = '5px';
-      } 
+      }
       else {
         item.style.marginRight = '0';
       }
@@ -71,9 +70,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.addEventListener('message', event => {
     const message = event.data;
+
+    if(message.command === 'moveToDo'){
+      console.log("JUST CAME BACK FROM COMPLETED TASK VIEW, message.task = ");
+      console.log(message.task);
+      addTask(message.task);
+    }
+
     if (message.command === 'restoreTasks') {
       let pinnedTasks = [], pinnedTask;
       message.tasks.forEach(task => {
+        // console.log(`------------\nTask: ${task.text}\n`)
         if (!task.isDone) {
           pinnedTask = addTask(task, true);
           if (task.isPinned) {
@@ -91,7 +98,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  function isDuplicate(text, edit=false){
+    console.log(`Got task: "${text}"`);
+    text = text.toLowerCase().trim();
+    console.log(`\nINSIDE isDuplicate RIGHT NOW`);
+    let count=0;
+    for(let i=0; i<tasks.length; i++){
+      console.log(`task[i].text = ${tasks[i].text.toLowerCase()}\ncount: ${count}`);
+      if(tasks[i].text.toLowerCase() === text){
+        count+=1
+      }
+      if(count>1){
+        break;
+      }
+    }
+    if(edit){
+      if(count>1){return true;}
+      return false;
+    }
+    else{
+      if(count==1){return true;}
+      return false;
+    }
+
+  }
+
   function addTask(taskText, isObject = false) {
+
     taskCounter = tasks.length;
     let taskTask = { index: taskCounter };
     let workspaceTask = { isPinned: false, isDone: false, index: taskCounter };
@@ -103,6 +136,12 @@ document.addEventListener('DOMContentLoaded', () => {
       taskTask.index = task.index;
       workspaceTask.isPinned = task.isPinned;
       workspaceTask.index = task.index;
+    }
+
+    if(isDuplicate(taskText)){
+      console.log(`\nTask Text: ${taskText}`);
+      vscode.postMessage({command: 'duplicateFound', task: taskText});
+      return;
     }
 
     const taskItem = document.createElement('li');
@@ -149,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  function deleteTask(taskItem, isObject = false) {
+  function deleteTask(taskItem, isObject = false, isTransferred = false, isDuplicate=false) {
     let task = taskItem;
 
     if (isObject) {
@@ -168,13 +207,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const taskText = tasks[index].text;
       tasks.splice(index, 1);
       workspaceTasks.splice(index, 1);
-      vscode.postMessage({ command: 'deleteTaskNotification', task: taskText });
+      if (!isTransferred & !isDuplicate) { vscode.postMessage({ command: 'deleteTaskNotification', task: taskText }); }
       vscode.postMessage({ command: 'updateWorkspaceState', tasks: workspaceTasks });
     }
     todoList.removeChild(taskItem);
     adjustMarginForScrollbar();
 
-    if (pinnedCount === 0 & completedCount === 0) {
+    if (pinnedCount === 0) {
       reindex();
     }
   }
@@ -185,65 +224,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const edit = taskItem.querySelector('.edit-btn');
 
     if (checkbox.checked) {
-      if (taskItem.classList.contains('pinned')) {
-        unpinTask(taskItem);
-      }
-      taskSpan.style.textDecoration = 'line-through';
-      taskSpan.style.color = 'var(--disabledForeground)';
-      pin.style.display = 'none';
-      edit.style.display = 'none';
-      let workspaceTask;
-      completedCount++;
-
+      const task = taskItem;
       for (let i = 0; i < tasks.length; i++) {
         if (tasks[i].element === taskItem) {
           taskItem = tasks[i];
-          tasks.splice(i, 1);
-          workspaceTask = workspaceTasks.splice(i, 1)[0];
-          tasks.push(taskItem);
-          workspaceTask.isDone = true;
-          workspaceTasks.push(workspaceTask);
-
-          todoList.appendChild(taskItem.element);
+          console.log(`Leaving to-do list view with text: ${taskItem.text}`);
+          vscode.postMessage({
+            command: "sendToCompleted",
+            task: {
+              text: taskItem.text, // Task text
+            },
+          });
           break;
         }
       }
+      deleteTask(task, false, true);
     }
-    else {
-      taskSpan.style.textDecoration = 'none';
-      taskSpan.style.color = 'var(--foreground)';
-      pin.style.removeProperty("display");
-      edit.style.removeProperty("display");
-      let workspaceTask;
-
-      for (let i = 0; i < tasks.length; i++) {
-        if (tasks[i].element === taskItem) {
-          taskItem = tasks[i];
-          tasks.splice(i, 1);
-          workspaceTask = workspaceTasks.splice(i, 1)[0];
-          break;
-        }
-      }
-
-      completedCount--;
-      for (let j = 0; j < (tasks.length - completedCount); j++) {
-        if (tasks[j].index > taskItem.index) {
-          tasks.splice(j, 0, taskItem);
-          workspaceTask.isDone = false;
-          workspaceTasks.splice(j, 0, workspaceTask);
-          todoList.insertBefore(taskItem.element, todoList.children[j]);
-          break;
-        }
-      }
-      if (workspaceTask.isDone) {
-        tasks.splice(tasks.length, 0, taskItem);
-        workspaceTask.isDone = false;
-        workspaceTasks.splice(tasks.length, 0, workspaceTask);
-        todoList.insertBefore(taskItem.element, todoList.children[(tasks.length - completedCount)]);
-      }
-    }
-
     vscode.postMessage({ command: 'updateWorkspaceState', tasks: workspaceTasks });
+    displayLists();
   }
 
   function pinTask(taskItem, isLoading = false) {
@@ -258,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
       pinButton.title = "Unpin";
       pinButton.style.display = "inline";
 
-      if (pinnedCount === 0 & completedCount === 0) {
+      if (pinnedCount === 0) {
         reindex();
       }
 
@@ -330,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
       workspaceTasks.splice(tasks.length, 0, workspaceTask);
       todoList.insertBefore(taskItem.element, null);
     }
-    if (pinnedCount === 0 & completedCount === 0) {
+    if (pinnedCount === 0) {
       reindex();
     }
 
@@ -364,16 +362,23 @@ document.addEventListener('DOMContentLoaded', () => {
       if (taskSpan.textContent.trim() === '') {
         deleteTask(taskItem);
       }
-      applyScrollIfNeeded(taskSpan);
-      taskSpan.removeEventListener('blur', finishEditing);
-      for (let i = 0; i < tasks.length; i++) {
-        if (tasks[i].text === originalText) {
-          tasks[i].text = taskSpan.textContent;
-          workspaceTasks[i].text = taskSpan.textContent;
-          break;
-        }
+
+      if(isDuplicate(taskSpan.textContent, true)){
+        console.log(`${taskSpan.textContent.trim()} is a duplicate`);
+        deleteTask(taskItem, false, false, true);
       }
-      vscode.postMessage({ command: 'updateWorkspaceState', tasks: workspaceTasks });
+      else{
+        applyScrollIfNeeded(taskSpan);
+        taskSpan.removeEventListener('blur', finishEditing);
+        for (let i = 0; i < tasks.length; i++) {
+          if (tasks[i].text === originalText) {
+            tasks[i].text = taskSpan.textContent;
+            workspaceTasks[i].text = taskSpan.textContent;
+            break;
+          }
+        }
+        vscode.postMessage({ command: 'updateWorkspaceState', tasks: workspaceTasks });
+      }
     }
 
     function cancelEditing() {
