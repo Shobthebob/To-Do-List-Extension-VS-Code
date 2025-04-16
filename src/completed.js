@@ -92,6 +92,19 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
+    if(message.command === 'clearTasks'){
+      /*
+      Delete from 
+      1) workspaceTasks []
+      2) workspace state
+      3) the UI itself
+      */
+     todoList.innerHTML = '';
+     workspaceTasks = []
+     vscode.postMessage({ command: 'updateWorkspaceState', tasks: workspaceTasks });
+
+    }
+
   });
 
   function deleteTask(taskItem, isTransferred = false) {

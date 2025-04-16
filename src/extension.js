@@ -1,5 +1,6 @@
-"use strict";
+'use strict';
 const vscode = require('vscode');
+const fs = require('fs');
 
 class toDoListWebviewProvider {
 	constructor(_extensionUri, viewType, context) {
@@ -39,7 +40,6 @@ class toDoListWebviewProvider {
 				vscode.window.showInformationMessage(`Task deleted: ${message.task}`);
 			}
 		});
-
 	}
 
 	getTodoHtml(webview) {
@@ -101,7 +101,6 @@ class completedWebviewProvider {
 				vscode.window.showInformationMessage(`Task deleted: ${message.task}`);
 			}
 		});
-
 	}
 
 	getTodoHtml(webview) {
@@ -134,6 +133,84 @@ function activate(context) {
 	global.completedProvider = completedProvider;
 	let completedDisposable = vscode.window.registerWebviewViewProvider("completed", completedProvider, { webviewOptions: { retainContextWhenHidden: true } });
 	context.subscriptions.push(completedDisposable);
+
+	// Register Import Tasks command
+	let importTasksDisposable = vscode.commands.registerCommand('toDo.importTasks', async () => {
+		try {
+			const fileUri = await vscode.window.showOpenDialog({
+				canSelectFiles: true,
+				canSelectFolders: false,
+				canSelectMany: false,
+				filters: {
+					'JSON files': ['json']
+				}
+			});
+
+			if (fileUri && fileUri[0]) {
+				const fileContent = await vscode.workspace.fs.readFile(fileUri[0]);
+				const tasks = JSON.parse(fileContent.toString());
+
+				if (Array.isArray(tasks)) {
+					const currentTasks = context.workspaceState.get('tasks', []);
+					const newTasks = [...currentTasks, ...tasks];
+					await context.workspaceState.update('tasks', newTasks);
+					todoProvider._view?.webview.postMessage({ command: 'restoreTasks', tasks: newTasks });
+					vscode.window.showInformationMessage('Tasks imported successfully!');
+				} else {
+					vscode.window.showErrorMessage('Invalid task file format');
+				}
+			}
+		} catch (error) {
+			vscode.window.showErrorMessage('Error importing tasks: ' + error.message);
+		}
+	});
+
+	// Register Export Tasks command
+	let exportTasksDisposable = vscode.commands.registerCommand('toDo.exportTasks', async () => {
+		try {
+			const tasks = context.workspaceState.get('tasks', []);
+			let defaultPath = vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath;
+			if (!defaultPath) {
+				defaultPath = process.env.HOME || process.env.USERPROFILE;
+			}
+
+			const fileUri = await vscode.window.showSaveDialog({
+				defaultUri: vscode.Uri.file(`${defaultPath}/tasks.json`),
+				filters: {
+					'JSON files': ['json']
+				}
+			});
+
+			if (fileUri) {
+				const taskData = JSON.stringify(tasks, null, 2);
+				await vscode.workspace.fs.writeFile(fileUri, Buffer.from(taskData));
+				vscode.window.showInformationMessage('Tasks exported successfully!');
+			}
+		} catch (error) {
+			vscode.window.showErrorMessage('Error exporting tasks: ' + error.message);
+		}
+	});
+
+	let clearAllDisposable = vscode.commands.registerCommand('completed.clearAll', async () => {
+		try {
+			const response = await vscode.window.showWarningMessage(
+				'Are you sure you want to clear all completed tasks?',
+				'Yes',
+				'No'
+			);
+
+			if (response === 'Yes') {
+				completedProvider._view?.webview.postMessage({ command: 'clearTasks', tasks: [] });
+				vscode.window.showInformationMessage('All completed tasks cleared!');
+			}
+		} catch (error) {
+			vscode.window.showErrorMessage('Error clearing completed tasks: ' + error.message);
+		}
+	});
+
+	context.subscriptions.push(importTasksDisposable);
+	context.subscriptions.push(exportTasksDisposable);
+	context.subscriptions.push(clearAllDisposable);
 }
 
 function getNonce() {

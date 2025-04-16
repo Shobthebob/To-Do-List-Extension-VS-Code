@@ -35,7 +35,7 @@
           "type": "webview",
           "id": "toDo",
           "name": "To-Do List",
-          "initialSize": 2
+          "initialSize": 3
         },
         {
           "icon": "",
