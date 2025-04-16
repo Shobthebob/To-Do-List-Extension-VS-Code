@@ -32,7 +32,7 @@ class toDoListWebviewProvider {
 					task: message.task.text
 				});
 			}
-			if (message.command === "duplicateFound"){
+			if (message.command === "duplicateFound") {
 				vscode.window.showInformationMessage(`Task "${message.task}" already exists`);
 			}
 			if (message.command === 'deleteTaskNotification') {
@@ -83,14 +83,14 @@ class completedWebviewProvider {
 
 		webviewView.webview.html = this.getTodoHtml(webviewView.webview);
 
-		const doneTasks = this._context.workspaceState.get('tasks', []);
+		const doneTasks = this._context.workspaceState.get('doneTasks', []);
 		webviewView.webview.postMessage({ command: 'restoreTasks', tasks: doneTasks });
 
 		webviewView.webview.onDidReceiveMessage(async (message) => {
 			if (message.command === 'updateWorkspaceState') {
-				await this._context.workspaceState.update('tasks', message.tasks);
+				await this._context.workspaceState.update('doneTasks', message.tasks);
 			}
-			if(message.command === 'removeFromCompleted'){
+			if (message.command === 'removeFromCompleted') {
 				console.log(`Forwarding to to-do view: ${message}`);
 				global.todoProvider._view?.webview.postMessage({
 					command: 'moveToDo',

@@ -44,43 +44,52 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("}");
   }
 
+  function addTask(taskText){
+    let workspaceTask = { index: completedCount };
+    const taskItem = document.createElement('li');
+
+    console.log(`IN HERE with task text: '${taskText}'`);
+
+    taskItem.innerHTML = `
+      <input type="checkbox" class="done-chkbx" title="Mark done">
+      <span class="task-txt">${taskText}</span>
+      <div class="btns">
+      <button class="three-dots-btn">${icons.kebab}</button>
+      <button class="delete-btn" title="Delete">${icons.delete}</button>
+      </div>
+      `;
+
+    adjustMarginForScrollbar();
+    const taskSpan = taskItem.querySelector('.task-txt');
+    const checkbox = taskItem.querySelector('.done-chkbx');
+    const delet = taskItem.querySelector('.delete-btn');
+    workspaceTask['text'] = taskText;
+
+    taskSpan.style.textDecoration = 'line-through';
+    taskSpan.style.color = 'var(--disabledForeground)';
+    checkbox.checked = true;
+
+    todoList.appendChild(taskItem);
+    workspaceTasks.push(workspaceTask);
+    completedCount++;
+    displayLists();
+    vscode.postMessage({ command: 'updateWorkspaceState', tasks: workspaceTasks });
+  }
+
   window.addEventListener('message', event => {
     const message = event.data;
 
     if (message.command === 'moveToCompleted') {
-
       console.log('Just entered completed.js\n');
-
-      let workspaceTask = { index: completedCount };
+      
       const taskText = message.task;
-      const taskItem = document.createElement('li');
+      addTask(taskText);
+    }
 
-      console.log(`IN HERE with task text: '${taskText}'`);
-
-      taskItem.innerHTML = `
-        <input type="checkbox" class="done-chkbx" title="Mark done">
-        <span class="task-txt">${taskText}</span>
-        <div class="btns">
-        <button class="three-dots-btn">${icons.kebab}</button>
-        <button class="delete-btn" title="Delete">${icons.delete}</button>
-        </div>
-        `;
-
-      adjustMarginForScrollbar();
-      const taskSpan = taskItem.querySelector('.task-txt');
-      const checkbox = taskItem.querySelector('.done-chkbx');
-      const delet = taskItem.querySelector('.delete-btn');
-      workspaceTask['text'] = taskText;
-
-      taskSpan.style.textDecoration = 'line-through';
-      taskSpan.style.color = 'var(--disabledForeground)';
-      checkbox.checked = true;
-
-      todoList.appendChild(taskItem);
-      workspaceTasks.push(workspaceTask);
-      completedCount++;
-      displayLists();
-      vscode.postMessage({ command: 'updateWorkspaceState', tasks: workspaceTasks });
+    if(message.command === 'restoreTasks'){
+      message.tasks.forEach(task => {
+        addTask(task.text);
+      });
     }
 
   });

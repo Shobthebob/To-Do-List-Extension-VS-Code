@@ -35,14 +35,14 @@
           "type": "webview",
           "id": "toDo",
           "name": "To-Do List",
-          "initialSize": 3
+          "initialSize": 2
         },
         {
           "icon": "",
           "type": "webview",
           "id": "completed",
           "name": "Completed Tasks",
-          "initialSize": 0
+          "initialSize": 1
         }
       ]
     },
