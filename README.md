@@ -4,10 +4,16 @@
 
 <h1 align="center">To-Do Manager</h1>
 
-[![Marketplace](https://img.shields.io/badge/Marketplace-To--Do%20Manager-red?logo=visual-studio-code&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=ShoubhitJamadhiar.to-do-manager)
-![VS Code Installs](https://img.shields.io/visual-studio-marketplace/i/ShoubhitJamadhiar.to-do-manager?label=Installs&color=green)
-![VS Code Version](https://img.shields.io/visual-studio-marketplace/v/ShoubhitJamadhiar.to-do-manager?label=VS%20Code%20Version&color=blue)
-[![License: GPL-3.0](https://img.shields.io/github/license/Shobthebob/To-Do-List-Extension-VS-Code?color=orange)](https://github.com/Shobthebob/To-Do-List-Extension-VS-Code/blob/main/LICENSE)
+<p align="center">
+  <a href="https://marketplace.visualstudio.com/items?itemName=ShoubhitJamadhiar.to-do-manager">
+    <img src="https://img.shields.io/badge/Marketplace-To--Do%20Manager-red?logo=visual-studio-code&logoColor=white" alt="VS Code Marketplace">
+  </a>
+  <img src="https://img.shields.io/visual-studio-marketplace/i/ShoubhitJamadhiar.to-do-manager?label=Installs&color=green" alt="Installs">
+  <img src="https://img.shields.io/visual-studio-marketplace/v/ShoubhitJamadhiar.to-do-manager?label=VS%20Code%20Version&color=blue" alt="Version">
+  <a href="https://github.com/Shobthebob/To-Do-List-Extension-VS-Code/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/Shobthebob/To-Do-List-Extension-VS-Code?color=orange" alt="License: GPL-3.0">
+  </a>
+</p>
 
 <p align="center">
   <a href="#project-description">Project Description</a> • 
@@ -32,44 +38,46 @@ Whether you’re working solo or as part of a larger team, To-Do Manager adapts 
 
 Here's a breakdown of some of the main functionalities you would find with this extension.
 
-<table>
-  <tr>
-    <td align="center">
-      <b>➕ Adding</b><br>
-      <img src="./assets/adding.gif" alt="adding.gif" width="220" height="auto">
-    </td>
-    <td align="center">
-      <b>✏️ Editing</b><br>
-      <img src="./assets/editing.gif" alt="editing.gif" width="220" height="auto">
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <b>📌 Pinning</b><br>
-      <img src="./assets/pinning.gif" alt="pinning.gif" width="220" height="auto">
-    </td>
-    <td align="center">
-      <b>✅ Completing</b><br>
-      <img src="./assets/completing.gif" alt="completing.gif" width="220" height="auto">
-    </td>
-  </tr>
+<div align="center">
+  <table>
     <tr>
-    <td align="center" colspan="2">
-      <b>🗑️ Deletion</b><br>
-      <img src="./assets/deleting.gif" alt="deleting.gif" width="450" height="auto">
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <b>📁 Import / Export</b><br>
-      <img src="./assets/importExport.gif" alt="import/export.gif" width="220" height="auto">
-    </td>
-    <td align="center">
-      <b>🧹 Clear All</b><br>
-      <img src="./assets/clearAll.gif" alt="clearAll.gif" width="220" height="auto">
-    </td>
-  </tr>
-</table>
+      <td align="center">
+        <b>➕ Adding</b><br>
+        <img src="./assets/adding.gif" alt="adding.gif" width="320" height="auto">
+      </td>
+      <td align="center">
+        <b>✏️ Editing</b><br>
+        <img src="./assets/editing.gif" alt="editing.gif" width="320" height="auto">
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <b>📌 Pinning</b><br>
+        <img src="./assets/pinning.gif" alt="pinning.gif" width="320" height="auto">
+      </td>
+      <td align="center">
+        <b>✅ Completing</b><br>
+        <img src="./assets/completing.gif" alt="completing.gif" width="320" height="auto">
+      </td>
+    </tr>
+      <tr>
+      <td align="center" colspan="2">
+        <b>🗑️ Deletion</b><br>
+        <img src="./assets/deleting.gif" alt="deleting.gif" width="550" height="auto">
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <b>📁 Import / Export</b><br>
+        <img src="./assets/importExport.gif" alt="import/export.gif" width="320" height="auto">
+      </td>
+      <td align="center">
+        <b>🧹 Clear All</b><br>
+        <img src="./assets/clearAll.gif" alt="clearAll.gif" width="320" height="auto">
+      </td>
+    </tr>
+  </table>
+</div>
 
 ## 🧠 What's New in v1.0.5
 
