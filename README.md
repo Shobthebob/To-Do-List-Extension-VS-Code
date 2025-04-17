@@ -1,54 +1,98 @@
-# To-Do List VS Code Extension
+<p align="center">
+  <img src="./assets/logo.png" alt="extensionLogo.png" style="display: block; margin: 0 auto;" width="150" height="auto">
+</p>
 
-Seamlessly streamline your workflow and master your daily tasks directly in VS Code. This to-do list extension will elevate your productivity and integrate smoothly with your development environment, providing task management features without disrupting your coding flow.
+<h1 align="center">To-Do Manager</h1>
 
-![opening](https://github.com/Shobthebob/To-Do-List-Extension-VS-Code/assets/77617762/d43883e0-bcd1-421d-ac93-7e96d226d9e1)
+[![Marketplace](https://img.shields.io/badge/Marketplace-To--Do%20Manager-red?logo=visual-studio-code&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=ShoubhitJamadhiar.to-do-manager)
+![VS Code Installs](https://img.shields.io/visual-studio-marketplace/i/ShoubhitJamadhiar.to-do-manager?label=Installs&color=green)
+![VS Code Version](https://img.shields.io/visual-studio-marketplace/v/ShoubhitJamadhiar.to-do-manager?label=VS%20Code%20Version&color=blue)
+[![License: GPL-3.0](https://img.shields.io/github/license/Shobthebob/To-Do-List-Extension-VS-Code?color=orange)](https://github.com/Shobthebob/To-Do-List-Extension-VS-Code/blob/main/LICENSE)
 
-## Installation
+<p align="center">
+  <a href="#project-description">Project Description</a> • 
+  <a href="#key-features">Key Features</a> • 
+  <a href="#-whats-new-in-v105">Patch Notes</a> •
+  <a href="#-installation">Installation</a>
+</p>
 
-1. Open Visual Studio Code
-2. Click on 'Extensions (Ctrl+Shift+X or Cmd+Shift+X)'
-3. Search for "To-Do Manager" (Publisher: Shoubhit Jamadhiar)
-4. Click on the "Install" button
+<p align="center">
+  <img src="./assets/extensionDisplay.png" width="800">
+</p>
 
-Alternatively, you can also use the [VS marketplace](https://marketplace.visualstudio.com/items?itemName=ShoubhitJamadhiar.to-do-manager) to download this extension
+## 🚀 Project Description
 
-## Features
+**To-Do Manager** is a fully-integrated task management extension for Visual Studio Code that transforms your editor into a smart productivity workspace. Designed by a developer for his fellow developers in mind, this extension introduces a clean and responsive sidebar UI for managing tasks without breaking your coding flow.
 
-- Create and manage tasks directly within VS Code
+Whether you're tracking bugs, planning features, or just managing your personal goals, To-Do Manager helps you stay organized by allowing you to manage your tasks, all inside VS Code. Each completed task is automatically archived into a dedicated Completed Tasks section, keeping your main list focused and clutter-free.
 
-  ![adding](https://github.com/Shobthebob/To-Do-List-Extension-VS-Code/assets/77617762/1f8457b2-4f10-4b2f-bb83-7439d9d87f4d)
+Whether you’re working solo or as part of a larger team, To-Do Manager adapts to your process, allowing you to focus less on managing tasks and more on completing them.
 
-- Pin important tasks to keep them at the top of your list
+## ✨ Key Features
 
-  ![pinning](https://github.com/Shobthebob/To-Do-List-Extension-VS-Code/assets/77617762/c451db3d-3579-46d2-9395-8017cf314962)
+Here's a breakdown of some of the main functionalities you would find with this extension.
 
-- Edit task descriptions easily
+<table>
+  <tr>
+    <td align="center">
+      <b>➕ Adding</b><br>
+      <img src="./assets/adding.gif" alt="adding.gif" width="220" height="auto">
+    </td>
+    <td align="center">
+      <b>✏️ Editing</b><br>
+      <img src="./assets/editing.gif" alt="editing.gif" width="220" height="auto">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <b>📌 Pinning</b><br>
+      <img src="./assets/pinning.gif" alt="pinning.gif" width="220" height="auto">
+    </td>
+    <td align="center">
+      <b>✅ Completing</b><br>
+      <img src="./assets/completing.gif" alt="completing.gif" width="220" height="auto">
+    </td>
+  </tr>
+    <tr>
+    <td align="center" colspan="2">
+      <b>🗑️ Deletion</b><br>
+      <img src="./assets/deleting.gif" alt="deleting.gif" width="450" height="auto">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <b>📁 Import / Export</b><br>
+      <img src="./assets/importExport.gif" alt="import/export.gif" width="220" height="auto">
+    </td>
+    <td align="center">
+      <b>🧹 Clear All</b><br>
+      <img src="./assets/clearAll.gif" alt="clearAll.gif" width="220" height="auto">
+    </td>
+  </tr>
+</table>
 
-  ![editing](https://github.com/Shobthebob/To-Do-List-Extension-VS-Code/assets/77617762/fe2286a2-20fc-44a9-bbd6-8ea636abe285)
+## 🧠 What's New in v1.0.5
 
-- Mark tasks as completed
+The following updates were introduced in version 1.0.5 to improve functionality and performance:
 
-  ![markComplete](https://github.com/Shobthebob/To-Do-List-Extension-VS-Code/assets/77617762/cc8b908e-5e27-431c-88aa-164d9ec27f9c)
+| Capability | Description |
+|------------|-------------|
+| 📁 Import/Export Pipeline | Backup and migrate task sessions using human-readable JSON files. |
+| 🔁 Duplicate Resolution | Automatic prevention of same-task entry — including edge cases on restore/undo. |
+| 📥 Restore on Reload | All task state is preserved between sessions using `workspaceState`. |
+| 🧹 Clear All Context | One-click deletion of all completed tasks |
 
-- Delete tasks when they're no longer needed
+---
 
-  ![deleting](https://github.com/Shobthebob/To-Do-List-Extension-VS-Code/assets/77617762/54266584-8f93-4fc0-b8b5-216c832fc71d)
+## 🛠 Installation
 
-<!-- - Persistent storage of tasks between VS Code sessions -->
+1. Open **Visual Studio Code**
+2. Go to the Extensions panel (`Ctrl+Shift+X`)
+3. Search for `"To-Do Manager"` by **Shoubhit Jamadhiar**
+4. Click **Install**
 
-## Usage
+Or install directly via [Visual Studio Marketplace →](https://marketplace.visualstudio.com/items?itemName=ShoubhitJamadhiar.to-do-manager)
 
-1. After installation you'll see a new icon in the Activity Bar.
-2. The extension activates as soon as you open it.
-3. To add a new task, type your task in the input field at the bottom and press Enter or click the "+" button.
-4. Hovering over the 3 dots to the right of each task will display the delete, edit, and pin buttons
-5. To mark a task as completed, click the checkbox next to the task.  
+## 📄 License
 
-## License
-
-This project is licensed under the [GPL-3.0 license](https://github.com/Shobthebob/To-Do-List-Extension-VS-Code/blob/main/LICENSE).
-
-## Support
-
-If you encounter any problems or have any suggestions, feel free to [open an issue](https://github.com/Shobthebob/To-Do-List-Extension-VS-Code/issues) in this repository.
+This project is distributed under the [GPL-3.0 License](https://github.com/Shobthebob/To-Do-List-Extension-VS-Code/blob/main/LICENSE).

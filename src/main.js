@@ -132,11 +132,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (isObject) {
       task = taskText;
-      taskText = taskText.text;
+      taskText = task.text;
       taskTask.index = task.index;
       workspaceTask.isPinned = task.isPinned;
       workspaceTask.index = task.index;
     }
+
+    taskText = taskText.trim();
 
     if(isDuplicate(taskText)){
       console.log(`\nTask Text: ${taskText}`);
@@ -353,18 +355,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function finishEditing() {
       taskSpan.contentEditable = false;
       taskSpan.classList.remove('editing');
+      const taskText = taskSpan.textContent.trim();
       editButton.title = "Edit";
       editButton.innerHTML = icons.edit;
       editButton.style.removeProperty("display");
       if (!taskItem.classList.contains("pinned")) {
         kebab.style.removeProperty("display");
       }
-      if (taskSpan.textContent.trim() === '') {
+      if (taskText === '') {
         deleteTask(taskItem);
       }
 
-      if(isDuplicate(taskSpan.textContent, true)){
-        console.log(`${taskSpan.textContent.trim()} is a duplicate`);
+      if(isDuplicate(taskText, true)){
+        console.log(`${taskText} is a duplicate`);
         deleteTask(taskItem, false, false, true);
       }
       else{
@@ -372,8 +375,8 @@ document.addEventListener('DOMContentLoaded', () => {
         taskSpan.removeEventListener('blur', finishEditing);
         for (let i = 0; i < tasks.length; i++) {
           if (tasks[i].text === originalText) {
-            tasks[i].text = taskSpan.textContent;
-            workspaceTasks[i].text = taskSpan.textContent;
+            tasks[i].text = taskText;
+            workspaceTasks[i].text = taskText;
             break;
           }
         }
